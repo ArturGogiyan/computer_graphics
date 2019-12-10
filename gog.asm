@@ -6,14 +6,6 @@ error:           dw	0
 dirx: 	         dw	0
 circle_radius_sq:dw 0
 circle_radius:   dw 0
-;circle_top_x:    dw 0
-;circle_top_y:    dw 0
-;circle_left_x:   dw 0
-;circle_left_y:   dw 0
-;circle_right_x:  dw 0
-;circle_right_y:  dw 0
-;circle_bottom_x: dw 0
-;circle_bottom_y: dw 0
 
 
 %define x0 100
@@ -27,15 +19,10 @@ circle_radius:   dw 0
 %define x10 210
 %define y10 200  
 
-%define xLeft 300
-%define yLeft 200
 %define xRight 500
 %define yRight 200  
 %define xTop 400  
 %define yTop 100  
-%define xBottom 400  
-%define yBottom 300  
-
 
 .start:
 	mov ax,010h				; EGA mode
@@ -79,9 +66,11 @@ circle_radius:   dw 0
 	mov bx, 100 ; - borderY
 	mov cx, 400 ; - centerX
 	mov dx, 200 ; - centerY
-
 	call .draw_circle
-	
+	mov ax, 200
+	mov bx, 400
+	call .fill
+
 	
 .kek:
 	xor ax,ax				;ожидание нажатия клавиши
@@ -493,76 +482,11 @@ circle_radius:   dw 0
 	pop bx
 	pop ax
 	
-    
-	;mov [circle_top_x], ax
-	;mov [circle_top_y], bx
-    ;mov [circle_left_y], dx
-    ;mov [circle_right_y], dx
-    ;mov [circle_bottom_x], ax
-    
-
-    
-    ;push ax
-	;push bx
-	;push cx
-	;push dx
-
-	;mov ax, [circle_radius]
-	;add cx, ax
-	;mov [circle_right_x], cx
-	;sub cx, ax
-	;sub cx, ax
-	;mov [circle_left_x], cx
-	;add dx, ax
-	;mov [circle_bottom_y], dx
-	
-    ;pop dx
-	;pop cx
-	;pop bx
-	;pop ax
 	
     call .circle_top
-    call .circle_bottom
-    call .circle_left
-    call .circle_right
     
     ret
-
-.circle_right:
-    push ax
-	push bx
-	push cx
-	push dx
-	
-    mov ax, yRight
-    mov bx, xRight
-    call .draw_point
     
-    pop dx
-	pop cx
-	pop bx
-	pop ax
-    
-    ret
-
-.circle_left:
-    push ax
-	push bx
-	push cx
-	push dx
-	
-    mov ax, yLeft
-    mov bx, xLeft
-    call .draw_point
-    
-    pop dx
-	pop cx
-	pop bx
-	pop ax
-
-    ret
-    
-
 .circle_top:
     push ax
 	push bx
@@ -575,6 +499,13 @@ circle_radius:   dw 0
 .top_cycle:
     push ax
     push bx
+    call .draw_point
+    pop bx
+    pop ax
+    push ax
+    push bx
+    sub bx, 100
+    add ax, 100
     call .draw_point
     pop bx
     pop ax
@@ -677,13 +608,20 @@ circle_radius:   dw 0
     add cx, cx
     sub cx, ax
     mov ax, cx
+    push ax
+    push bx
     call .draw_point
-    
+    pop bx
+    pop ax
+    sub bx, 100
+    sub ax, 100
+    call .draw_point
     pop dx
 	pop cx
 	pop bx
 	pop ax
     ret
+
     
 .map_up_left:
     push ax
@@ -695,6 +633,13 @@ circle_radius:   dw 0
     add cx, cx
     sub cx, bx
     mov bx, cx
+    push ax
+    push bx
+    call .draw_point
+    pop bx
+    pop ax
+    add bx, 100
+    add ax, 100
     call .draw_point
     
     pop dx
@@ -702,6 +647,7 @@ circle_radius:   dw 0
 	pop bx
 	pop ax
     ret
+
     
 .map_down_left:
     push ax
@@ -718,32 +664,20 @@ circle_radius:   dw 0
     add cx, cx
     sub cx, bx
     mov bx, cx
-    call .draw_point
-    
-    pop dx
-	pop cx
-	pop bx
-	pop ax
-    ret
-    
-    
-.circle_bottom:
     push ax
-	push bx
-	push cx
-	push dx
-	
-    mov ax, yBottom
-    mov bx, xBottom
+    push bx
+    call .draw_point
+    pop bx
+    pop ax
+    add bx, 100
+    sub ax, 100
     call .draw_point
     
     pop dx
 	pop cx
 	pop bx
 	pop ax
-	
     ret
-
     
     ;ax - y
     ;bx - x
@@ -753,12 +687,12 @@ circle_radius:   dw 0
 	push bx
 	push dx
     
-    mov cx, yLeft ; center coordinates
+    mov cx, yRight ; center coordinates
     sub ax, cx
     call .abs
     mul ax
     mov cx, ax
-    mov dx, xBottom
+    mov dx, xTop
     mov ax, bx
     sub ax, dx
     call .abs
